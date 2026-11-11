@@ -490,7 +490,21 @@ class RemoteToolExecutor(ToolExecutor):
         self._guardrail = guardrail_engine
         self._approvals = approval_manager
         self._allowed_local_tools = allowed_local_tools
+        # Embed sessions: the exact tool names the session offered the model.
+        # None = no limit (trusted surfaces). See restrict_to().
+        self._allowed_tools: Optional[frozenset] = None
         self._recent_irreversible: Dict[str, float] = {}
+
+    def restrict_to(self, registry: Any) -> None:
+        """Run only tools in `registry` (the session's sandboxed registry), and
+        run server tools FROM it. Without this, server-side tools resolved off
+        the full registry passed at construction, so a model coaxed into naming
+        a tool it was never offered would still execute it. Fails closed: an
+        unusable registry allows nothing."""
+        names = getattr(registry, "_tools", None)
+        self._allowed_tools = frozenset(names) if isinstance(names, dict) else frozenset()
+        if isinstance(names, dict):
+            self._registry = registry
 
     async def execute(self, tool_name: str, tool_args: Dict[str, Any]) -> str:
         """Route tool execution: LOCAL tools → WebSocket, SERVER tools → local."""
@@ -512,6 +526,9 @@ class RemoteToolExecutor(ToolExecutor):
                 self._record_irreversible(tool_name, tool_args)
 
     async def _dispatch(self, tool_name: str, tool_args: Dict[str, Any]) -> str:
+        if self._allowed_tools is not None and tool_name not in self._allowed_tools:
+            logger.warning("RemoteToolExecutor: blocked unoffered tool %r", tool_name)
+            return f"[GUARDRAIL BLOCKED] '{tool_name}' is not available here."
         if tool_name in LOCAL_TOOLS:
             if (self._allowed_local_tools is not None
                     and tool_name not in self._allowed_local_tools):
