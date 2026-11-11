@@ -1,0 +1,7 @@
+psycopg2-binary>=2.9
+httpx>=0.25
+elasticsearch<9.0.0
+redis>=5.0
+# Microsoft 365 connectors (Teams / Outlook / OneDrive) — without this the whole
+# MS ingestion path import-fails and the brain bundle degrades. Required in prod.
+azure-identity>=1.15
