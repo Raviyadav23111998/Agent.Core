@@ -5,7 +5,7 @@ Reads ag_system.service_connections from a TENANT's own Postgres DB and returns
 the resolved (decrypted) coordinates for that tenant's separate backing stores:
 elastic, neo4j, redis, embeddings.
 
-This is the Antigravity analog of how SMSystems keeps per-tenant configuration
+This mirrors how a platform control plane keeps per-tenant configuration
 INSIDE the tenant database (system.codes / system.modules). The tenant DB is the
 single source of truth for that tenant's services — see MULTITENANT_MASTER_PLAN.md
 §4 (N5)/D8 and MULTITENANT_ELASTIC_NEO4J_DESIGN.md §1.

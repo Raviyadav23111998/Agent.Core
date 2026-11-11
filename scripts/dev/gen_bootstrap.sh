@@ -24,7 +24,7 @@ SEED_TABLES=(
 
 {
   echo "--"
-  echo "-- Antigravity agent tenant BOOTSTRAP (no creds, no tenant data)"
+  echo "-- Storeglance Agent tenant BOOTSTRAP (no creds, no tenant data)"
   echo "-- Source of truth: golden tenant ${SRC}"
   echo "-- Contents: full ag_* schema (V034) + curated platform-default seed."
   echo "-- Excludes: all credentials/secrets, all tenant-private runtime data,"

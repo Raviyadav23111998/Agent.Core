@@ -1607,8 +1607,8 @@ def test_vs_extension_sse_event_type_mapping():
 
     cs_path = os.path.join(
         os.path.dirname(__file__), '..', '..', 'agent.vs-extension',
-        'AntigravityAgent', 'ToolWindow',
-        'AntigravityToolWindowControl.xaml.cs')
+        'StoreglanceAgent', 'ToolWindow',
+        'StoreglanceToolWindowControl.xaml.cs')
 
     if not os.path.exists(cs_path):
         pytest.skip("VS extension source not found at expected path")

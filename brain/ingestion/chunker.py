@@ -2,7 +2,7 @@
 Document chunker — parent-child retrieval foundation.
 ═══════════════════════════════════════════════════════
 
-Antigravity historically embedded the WHOLE document as a single vector
+The agent historically embedded the WHOLE document as a single vector
 (truncated to ~8k chars), which dilutes meaning and loses anything past the
 cutoff — poor recall on long PDFs / manuals / policies.
 
