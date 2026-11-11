@@ -1685,7 +1685,9 @@ class AgentCLI:
         neo4j_user = app_config.get("neo4j.user", "neo4j")
         neo4j_pass = app_config.get("neo4j.password", "")
         es_url = app_config.get("elasticsearch.url", "http://localhost:9200")
-        es_index = app_config.get("elasticsearch.index", "brain")
+        from core.tenant_context import data_namespace
+        _ns = data_namespace()
+        es_index = f"brain_{_ns}" if _ns else app_config.get("elasticsearch.index", "brain")
 
         db_tools = DatabaseTools(
             neo4j_uri=neo4j_uri,
@@ -1729,15 +1731,17 @@ class AgentCLI:
             from brain.llm_adapter import BrainLLMAdapter
             from tools.brain_mcp import BrainMCPTools
 
-            from core.tenant_context import multi_tenant_enabled
-            _default_graph_tid = "default" if multi_tenant_enabled() else None
+            from core.tenant_context import multi_tenant_enabled, data_namespace
+            _ns = data_namespace()
+            _default_graph_tid = _ns or ("default" if multi_tenant_enabled() else None)
             brain_storage = StorageManager(
                 db=self.tenant_db,
                 neo4j_uri=app_config.get("neo4j.uri"),
                 neo4j_user=app_config.get("neo4j.user"),
                 neo4j_password=app_config.get("neo4j.password"),
                 elasticsearch_url=app_config.get("elasticsearch.url"),
-                elasticsearch_index=app_config.get("elasticsearch.index", "brain"),
+                elasticsearch_index=(f"brain_{_ns}" if _ns
+                                     else app_config.get("elasticsearch.index", "brain")),
                 graph_tenant_id=_default_graph_tid,
             )
             

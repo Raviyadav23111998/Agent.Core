@@ -72,6 +72,13 @@ ENV_TO_CONFIG = {
     "SECRET_PRIVATE_KEY": "secret.private_key",
     "SECRET_PUBLIC_KEY": "secret.public_key",
     "AG_FIELD_ENCRYPTION_KEY": "secret.field_encryption_key",
+    # Platform crypto/JWT. In a standalone deployment these come from the
+    # environment (or the agent's own ag_system.configs) — never from MSystem.
+    "SECRET_ISSUER": "secret.issuer",
+    "SECRET_AUDIENCE": "secret.audience",
+    "SECRET_TOKEN_EXPIRY_MINUTES": "secret.token_expiry_minutes",
+    "SECRET_REFRESH_TOKEN_EXPIRY_DAYS": "secret.refresh_token_expiry_days",
+    "AG_SERVICE_TOKEN": "secret.service_token",
 }
 
 CONFIG_TO_ENV = {v: k for k, v in ENV_TO_CONFIG.items()}
@@ -273,6 +280,10 @@ class AppConfig:
         val = self._agent_config().get(key)
         if val:
             return val
+        # Standalone (no MSystem): the agent's own DB is the control plane, so
+        # its ag_system.configs is the next source after ENV.
+        if self._grouter is None and self._cache.get(key):
+            return self._cache[key]
         if key in DEFAULTS:
             return DEFAULTS[key]
         return default
@@ -300,7 +311,9 @@ class AppConfig:
                 self._grouter = None
             if self._grouter is None:
                 try:
-                    from core.msystem_router import MSystemRouter
+                    from core.msystem_router import MSystemRouter, msystem_configured
+                    if not msystem_configured():
+                        return None
                     self._grouter = MSystemRouter()
                 except Exception:
                     self._grouter = None

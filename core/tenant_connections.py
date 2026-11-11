@@ -99,10 +99,13 @@ class TenantConnections:
         No seeding required — a tenant works the moment its Postgres DB exists."""
         if self._storage is None:
             from brain.storage.manager import StorageManager
+            from core.tenant_context import data_namespace
             sfx = self.ctx.suffix8
+            ns = data_namespace() if self.ctx.is_default else None
+            graph_tid = ns or self.ctx.tenant_id
 
             es_url = self._override("elastic", "url") or self._infra("elasticsearch.url")
-            es_index = self._override("elastic", "index") or f"brain_{sfx}"
+            es_index = self._override("elastic", "index") or f"brain_{ns or sfx}"
             neo_uri = self._override("neo4j", "uri") or self._infra("neo4j.uri")
             neo_user = self._override("neo4j", "user") or self._infra("neo4j.user") or "neo4j"
             neo_pw = (self._override("neo4j", "secret") or self._override("neo4j", "password")
@@ -115,7 +118,7 @@ class TenantConnections:
                 neo4j_uri=neo_uri,
                 neo4j_user=neo_user,
                 neo4j_password=neo_pw,
-                graph_tenant_id=self.ctx.tenant_id,
+                graph_tenant_id=graph_tid,
             )
             sm.connect()
             self._storage = sm

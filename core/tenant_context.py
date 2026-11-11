@@ -39,7 +39,24 @@ def multi_tenant_enabled() -> bool:
     When off, everything resolves to the default tenant → identical to the
     legacy single-tenant runtime. Read live so tests/ops can toggle.
     """
-    return os.environ.get("AG_MULTI_TENANT", "0") not in ("0", "false", "False", "")
+    if os.environ.get("AG_MULTI_TENANT", "0") in ("0", "false", "False", ""):
+        return False
+    # Tenants are resolved through MSystem; without it there is nothing to route
+    # to, so a standalone deployment is always single-tenant.
+    from core.msystem_router import msystem_configured
+    return msystem_configured()
+
+
+def data_namespace() -> Optional[str]:
+    """Per-deployment namespace for the DEFAULT tenant's shared-infra data
+    (AG_DATA_NAMESPACE, e.g. "storeglance_prod").
+
+    Elasticsearch and Neo4j can be shared clusters. Without a namespace every
+    single-tenant deployment would write its default tenant into the same
+    `brain_default` index / `default` graph key. When set, the default tenant
+    uses index `brain_<ns>` and graph key `<ns>` instead."""
+    ns = os.environ.get("AG_DATA_NAMESPACE", "").strip().lower()
+    return ns or None
 
 
 def tenant_suffix8(tenant_id: Optional[str]) -> str:

@@ -481,7 +481,7 @@ CONFIG_METADATA = {
         "group": "secret",
         "type": "text",
         "description": "JWT issuer claim value.",
-        "default": "Storeglance.MSystem",
+        "default": "Storeglance.Agent",
         "requires_restart": True,
     },
     "secret.audience": {
@@ -489,7 +489,7 @@ CONFIG_METADATA = {
         "group": "secret",
         "type": "text",
         "description": "JWT audience claim value.",
-        "default": "Storeglance.SolutionsKraft",
+        "default": "Storeglance.Agent.Clients",
         "requires_restart": True,
     },
     "secret.field_encryption_key": {

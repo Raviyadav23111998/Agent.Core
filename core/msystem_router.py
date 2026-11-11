@@ -31,10 +31,16 @@ from typing import Optional, Dict, Any, List
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MSYSTEM_URL = os.environ.get(
-    "AG_MSYSTEM_URL",
-    "postgresql://postgres:postgres@localhost:5432/msystems_prod",
-)
+# OPTIONAL. The agent runs standalone (its own database is the only control
+# plane) unless AG_MSYSTEM_URL is set explicitly. There is deliberately no
+# fallback URL: a missing setting must mean "no MSystem", never "try a local one".
+DEFAULT_MSYSTEM_URL = os.environ.get("AG_MSYSTEM_URL", "").strip()
+
+
+def msystem_configured() -> bool:
+    """True only when an MSystem control plane has been configured (AG_MSYSTEM_URL).
+    Read live so tests/ops can toggle."""
+    return bool(os.environ.get("AG_MSYSTEM_URL", "").strip())
 
 _CACHE_TTL = int(os.environ.get("AG_MSYSTEM_CACHE_TTL", "300"))
 
@@ -83,7 +89,9 @@ class MSystemRouter:
 
     def __init__(self, msystem_url: str = None, app_key: str = None,
                  require_subscription: bool = None):
-        self._url = msystem_url or DEFAULT_MSYSTEM_URL
+        self._url = msystem_url or os.environ.get("AG_MSYSTEM_URL", "").strip()
+        if not self._url:
+            raise RuntimeError("MSystem not configured (AG_MSYSTEM_URL unset) — standalone mode")
         self._app_key = app_key or APP_KEY
         self._require_sub = _REQUIRE_SUBSCRIPTION if require_subscription is None else require_subscription
         self._db = None

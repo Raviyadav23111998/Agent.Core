@@ -5,3 +5,10 @@ redis>=5.0
 # Microsoft 365 connectors (Teams / Outlook / OneDrive) — without this the whole
 # MS ingestion path import-fails and the brain bundle degrades. Required in prod.
 azure-identity>=1.15
+# Brain graph pillar, cron scheduling, document/media handling. These were
+# only ever present in the host's global Python; a venv needs them declared.
+neo4j>=5.20
+croniter>=2.0
+Pillow>=10.0
+beautifulsoup4>=4.12
+chardet>=5.0

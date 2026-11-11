@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import os
 
-GATEWAY_API = os.environ.get("AG_PUBLIC_API_BASE", "https://api.storeglance.com")
+GATEWAY_API = os.environ.get("AG_PUBLIC_API_BASE", "https://ai.storeglance.com")
 
 MASTER_TENANT_LOGO_PATH = "/api/master/tenant-config/TenantLogo"
 
@@ -37,7 +37,7 @@ def gateway_base_from_request(request) -> str:
     """Reconstruct ``{scheme}://{host}`` of the gateway from the incoming request.
 
     Agent.API is reached through the same gateway as the master (e.g.
-    ``uat-api.storeglance.com/api/agent/…``), so the request host IS the right base to
+    ``uat-ai.storeglance.com/api/…``), so the request host IS the right base to
     build the master logo URL against — environment-correct (uat vs prod) WITHOUT
     relying on AG_PUBLIC_API_BASE being set, exactly how agent.web derives it from
     the served host. Falls back to the configured GATEWAY_API. NB: this is the API

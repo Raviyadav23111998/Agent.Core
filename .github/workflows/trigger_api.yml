@@ -7,7 +7,7 @@ name: Trigger API Deployment
 #
 # ── WHY THIS IS NOT `gh workflow run` ───────────────────────────────────
 #
-# It was, and it never once worked. The runner is self-hosted and has no GitHub
+# It was, and it never once worked. The runner had no GitHub
 # CLI installed, so every push to this repo produced:
 #
 #     gh: command not found
@@ -23,13 +23,13 @@ name: Trigger API Deployment
 # One less thing that has to be true about the machine.
 on:
   push:
-    branches: [ "main", "uat", "sit" ]
+    branches: [ "main", "uat" ]
   workflow_dispatch:
 
 jobs:
   trigger-api:
     name: Trigger Agent.API Workflow
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - name: Trigger Agent.API build

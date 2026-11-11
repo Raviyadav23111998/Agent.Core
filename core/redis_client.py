@@ -19,6 +19,7 @@ Config:  redis.url = redis://localhost:6379/0   (unset → disabled)
 from __future__ import annotations
 
 import logging
+import os
 import threading
 import time
 
@@ -70,7 +71,15 @@ def reset_for_tests():
         _failed_until = 0.0
 
 
-CONFIG_RELOAD_CHANNEL = "ag:config:reload"
+def _channel(name: str) -> str:
+    """Pub/sub channels are server-wide in Redis (not per DB index), so two
+    deployments sharing one Redis would hear each other's signals. With
+    AG_DATA_NAMESPACE set, channels become ag:<ns>:<name>."""
+    ns = os.environ.get("AG_DATA_NAMESPACE", "").strip().lower()
+    return f"ag:{ns}:{name}" if ns else f"ag:{name}"
+
+
+CONFIG_RELOAD_CHANNEL = _channel("config:reload")
 
 
 def publish_config_reload(changed_key: str = ""):
@@ -101,7 +110,7 @@ def subscribe_config_reload(callback):
     _subscribe_channel(CONFIG_RELOAD_CHANNEL, callback, "config-reload-sub")
 
 
-SESSION_INVALIDATE_CHANNEL = "ag:agent:session:invalidate"
+SESSION_INVALIDATE_CHANNEL = _channel("agent:session:invalidate")
 
 
 def publish_session_invalidate(scope: str):
